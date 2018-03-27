@@ -136,19 +136,22 @@ func setTagsAt(dirPath string, c *cli.Context) error {
 				title := strings.TrimRight(filepath.Base(item.Name()), filepath.Ext(item.Name()))
 				tag.SetTitle(title)
 				parts := strings.Split(dirPath, "/")
-				if val := getPathItem(parts, albumIndex, album); val != "" {
-					tag.SetAlbum(val)
+				itemAlbum := getPathItem(parts, albumIndex, album)
+				itemArtist := getPathItem(parts, artistIndex, artist)
+				itemYear := getPathItem(parts, yearIndex, year)
+				if itemAlbum != "" {
+					tag.SetAlbum(itemAlbum)
 				}
-				if val := getPathItem(parts, artistIndex, artist); val != "" {
-					tag.SetArtist(val)
+				if itemArtist != "" {
+					tag.SetArtist(itemArtist)
 				}
-				if val := getPathItem(parts, yearIndex, year); val != "" {
-					tag.SetYear(year)
+				if itemYear != "" {
+					tag.SetYear(itemYear)
 				}
 				if err = tag.Save(); err != nil {
-					logs.Errorf("Failed to save tag, the error is %#v", err)
+					logs.Errorf("Failed to save tag (title: %s, album: %s, artist: %s, year: %s) on item %s, the error is %#v", title, itemAlbum, itemArtist, itemYear, itemPath, err)
 					tag.Close()
-					return err
+					continue
 				}
 				tag.Close()
 			}
